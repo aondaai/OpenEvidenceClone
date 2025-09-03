@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}MedEvidence - AI-Powered Medical Search{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-4 fw-bold text-medical-dark mb-3">
+                    Evidence-Based Medical Search
+                </h1>
+                <p class="lead text-muted mb-4">
+                    AI-powered search for healthcare professionals. Get instant access to peer-reviewed medical literature and clinical evidence.
+                </p>
+                
+                <!-- Search Form -->
+                <div class="search-container">
+                    <form method="POST" action="{{ url_for('search') }}" class="d-flex mb-4">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i data-feather="search" class="text-medical-blue"></i>
+                            </span>
+                            <input type="text" 
+                                   name="query" 
+                                   class="form-control border-start-0 ps-0" 
+                                   placeholder="Ask a clinical question or search medical topics..."
+                                   required
+                                   autocomplete="off"
+                                   id="searchInput">
+                        </div>
+                        <button type="submit" class="btn btn-medical btn-lg ms-2 px-4">
+                            <span class="search-btn-text">Search</span>
+                            <span class="search-btn-loading d-none">
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                Searching...
+                            </span>
+                        </button>
+                    </form>
+                    
+                    <!-- Quick Search Examples -->
+                    <div class="quick-examples mb-4">
+                        <small class="text-muted d-block mb-2">Try these examples:</small>
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <button class="btn btn-outline-secondary btn-sm quick-search" 
+                                    data-query="Type 2 diabetes management guidelines">
+                                Type 2 Diabetes Management
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm quick-search" 
+                                    data-query="Hypertension treatment evidence">
+                                Hypertension Treatment
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm quick-search" 
+                                    data-query="COVID-19 clinical trials">
+                                COVID-19 Clinical Trials
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm quick-search" 
+                                    data-query="Cardiac arrest resuscitation protocols">
+                                Resuscitation Protocols
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="feature-card h-100">
+                <div class="feature-icon">
+                    <i data-feather="zap" class="text-medical-blue"></i>
+                </div>
+                <h5 class="fw-bold mb-3">AI-Powered Search</h5>
+                <p class="text-muted">
+                    Advanced AI technology searches through vast medical databases to find the most relevant clinical evidence for your queries.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="feature-card h-100">
+                <div class="feature-icon">
+                    <i data-feather="shield-check" class="text-medical-blue"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Evidence-Based Results</h5>
+                <p class="text-muted">
+                    All results are sourced from peer-reviewed medical journals, clinical trials, and trusted medical databases with credibility scoring.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="feature-card h-100">
+                <div class="feature-icon">
+                    <i data-feather="clock" class="text-medical-blue"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Instant Summaries</h5>
+                <p class="text-muted">
+                    Get AI-generated summaries of complex medical literature, highlighting key clinical findings and treatment recommendations.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Trusted Sources Section -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h3 class="fw-bold text-medical-dark mb-2">Trusted Medical Sources</h3>
+                <p class="text-muted">
+                    Searches across leading medical journals and databases
+                </p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="source-badge">
+                            <strong class="text-medical-blue">PubMed</strong>
+                            <small class="d-block text-muted">NIH Database</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="source-badge">
+                            <strong class="text-medical-blue">NEJM</strong>
+                            <small class="d-block text-muted">New England Journal</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="source-badge">
+                            <strong class="text-medical-blue">JAMA</strong>
+                            <small class="d-block text-muted">Network Journals</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="source-badge">
+                            <strong class="text-medical-blue">Cochrane</strong>
+                            <small class="d-block text-muted">Systematic Reviews</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Professional Notice -->
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="alert alert-info border-0" style="background-color: #e8f4fd;">
+                <div class="d-flex align-items-center">
+                    <i data-feather="info" class="text-medical-blue me-3"></i>
+                    <div>
+                        <h6 class="alert-heading mb-1">For Healthcare Professionals</h6>
+                        <p class="mb-0 small">
+                            This platform is designed for licensed healthcare professionals. 
+                            The information provided is for clinical reference and should not replace professional medical judgment.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle quick search buttons
+    const quickSearchButtons = document.querySelectorAll('.quick-search');
+    const searchInput = document.getElementById('searchInput');
+    
+    quickSearchButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const query = this.getAttribute('data-query');
+            searchInput.value = query;
+            searchInput.focus();
+        });
+    });
+    
+    // Handle form submission with loading state
+    const searchForm = document.querySelector('form[action="{{ url_for('search') }}"]');
+    const searchBtn = searchForm.querySelector('button[type="submit"]');
+    const searchBtnText = searchBtn.querySelector('.search-btn-text');
+    const searchBtnLoading = searchBtn.querySelector('.search-btn-loading');
+    
+    searchForm.addEventListener('submit', function() {
+        searchBtn.disabled = true;
+        searchBtnText.classList.add('d-none');
+        searchBtnLoading.classList.remove('d-none');
+    });
+});
+</script>
+{% endblock %}

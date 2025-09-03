@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - {{ query }} | MedEvidence{% endblock %}
+
+{% block content %}
+<!-- Search Header -->
+<div class="search-header bg-light py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Search Form -->
+                <form method="POST" action="{{ url_for('search') }}" class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i data-feather="search" class="text-medical-blue"></i>
+                        </span>
+                        <input type="text" 
+                               name="query" 
+                               class="form-control" 
+                               value="{{ query }}"
+                               placeholder="Search medical literature..."
+                               required>
+                        <button type="submit" class="btn btn-medical">
+                            Search
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Results Summary -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1 text-medical-dark">
+                            Search Results for: <em>"{{ query }}"</em>
+                        </h5>
+                        <small class="text-muted">
+                            <i data-feather="file-text" class="me-1"></i>
+                            Found {{ total_results }} relevant medical sources
+                        </small>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-medical btn-sm" onclick="window.history.back()">
+                            <i data-feather="arrow-left" class="me-1"></i>
+                            New Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results -->
+<div class="container py-4">
+    {% if results %}
+        <div class="row">
+            <!-- Main Results -->
+            <div class="col-lg-8">
+                <div class="results-container">
+                    {% for result in results %}
+                    <div class="result-card mb-4">
+                        <div class="result-header">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="flex-grow-1">
+                                    <h6 class="result-title mb-1">
+                                        {% if result.url %}
+                                        <a href="{{ result.url }}" target="_blank" rel="noopener" class="text-decoration-none">
+                                            {{ result.title }}
+                                            <i data-feather="external-link" class="ms-1" style="width: 14px; height: 14px;"></i>
+                                        </a>
+                                        {% else %}
+                                        {{ result.title }}
+                                        {% endif %}
+                                    </h6>
+                                    <div class="result-meta">
+                                        <span class="source-badge me-2">{{ result.source_type }}</span>
+                                        <small class="text-muted">{{ result.publication_date }}</small>
+                                        {% if result.credibility_score != 'Unknown' %}
+                                        <span class="credibility-badge ms-2">{{ result.credibility_score }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-content">
+                            <!-- AI Summary -->
+                            {% if result.summary and result.summary != 'Summary unavailable' %}
+                            <div class="ai-summary mb-3">
+                                <div class="summary-header">
+                                    <i data-feather="cpu" class="text-medical-blue me-2"></i>
+                                    <strong class="text-medical-blue">Clinical Summary</strong>
+                                </div>
+                                <p class="summary-text mb-0">{{ result.summary }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Original Content -->
+                            <div class="original-content">
+                                <div class="content-header mb-2">
+                                    <small class="text-muted">
+                                        <i data-feather="file-text" class="me-1"></i>
+                                        Original Content
+                                    </small>
+                                </div>
+                                <p class="content-text">{{ result.content }}</p>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="result-actions mt-3">
+                                {% if result.url %}
+                                <a href="{{ result.url }}" target="_blank" class="btn btn-outline-medical btn-sm">
+                                    <i data-feather="external-link" class="me-1"></i>
+                                    View Full Article
+                                </a>
+                                {% endif %}
+                                <button class="btn btn-outline-secondary btn-sm" 
+                                        onclick="summarizeContent('{{ loop.index0 }}', '{{ result.content|e }}')">
+                                    <i data-feather="edit-3" class="me-1"></i>
+                                    Enhanced Summary
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="sidebar-content">
+                    <!-- Search Tips -->
+                    <div class="sidebar-card mb-4">
+                        <h6 class="sidebar-title">
+                            <i data-feather="lightbulb" class="me-2"></i>
+                            Search Tips
+                        </h6>
+                        <ul class="small text-muted mb-0">
+                            <li class="mb-2">Use specific medical terms for better results</li>
+                            <li class="mb-2">Include patient demographics when relevant</li>
+                            <li class="mb-2">Try different phrasings for comprehensive coverage</li>
+                            <li>Combine symptoms with potential diagnoses</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Related Topics -->
+                    <div class="sidebar-card mb-4">
+                        <h6 class="sidebar-title">
+                            <i data-feather="tag" class="me-2"></i>
+                            Related Medical Topics
+                        </h6>
+                        <div class="related-topics">
+                            <button class="btn btn-outline-secondary btn-sm mb-2 me-2" 
+                                    onclick="searchRelated('{{ query }} clinical guidelines')">
+                                Clinical Guidelines
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm mb-2 me-2" 
+                                    onclick="searchRelated('{{ query }} systematic review')">
+                                Systematic Reviews
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm mb-2 me-2" 
+                                    onclick="searchRelated('{{ query }} randomized trial')">
+                                Clinical Trials
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm mb-2 me-2" 
+                                    onclick="searchRelated('{{ query }} meta analysis')">
+                                Meta-Analysis
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Evidence Levels -->
+                    <div class="sidebar-card">
+                        <h6 class="sidebar-title">
+                            <i data-feather="layers" class="me-2"></i>
+                            Evidence Quality Guide
+                        </h6>
+                        <div class="evidence-guide small">
+                            <div class="evidence-item mb-2">
+                                <span class="badge bg-success me-2">High</span>
+                                Systematic reviews, RCTs
+                            </div>
+                            <div class="evidence-item mb-2">
+                                <span class="badge bg-warning me-2">Medium</span>
+                                Cohort studies, guidelines
+                            </div>
+                            <div class="evidence-item">
+                                <span class="badge bg-secondary me-2">Low</span>
+                                Case studies, expert opinion
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- No Results -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <div class="no-results py-5">
+                    <i data-feather="search" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                    <h5 class="text-muted mb-3">No medical literature found</h5>
+                    <p class="text-muted">
+                        Try refining your search with different medical terms or broader concepts.
+                    </p>
+                    <a href="{{ url_for('index') }}" class="btn btn-medical">
+                        <i data-feather="arrow-left" class="me-2"></i>
+                        New Search
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Loading Modal for Enhanced Summary -->
+<div class="modal fade" id="summaryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Enhanced Clinical Summary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="summaryContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-medical-blue" role="status">
+                            <span class="visually-hidden">Generating summary...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Generating enhanced clinical summary...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-medical" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Enhanced summary function
+function summarizeContent(index, content) {
+    const modal = new bootstrap.Modal(document.getElementById('summaryModal'));
+    const summaryContent = document.getElementById('summaryContent');
+    
+    // Show loading state
+    summaryContent.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-medical-blue" role="status">
+                <span class="visually-hidden">Generating summary...</span>
+            </div>
+            <p class="mt-3 text-muted">Generating enhanced clinical summary...</p>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Call summarization API
+    fetch('/summarize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            content: content,
+            context: '{{ query }}'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.summary) {
+            summaryContent.innerHTML = `
+                <div class="enhanced-summary">
+                    <div class="alert alert-info">
+                        <i data-feather="cpu" class="me-2"></i>
+                        <strong>AI-Enhanced Clinical Summary</strong>
+                    </div>
+                    <p class="summary-text">${data.summary}</p>
+                </div>
+            `;
+            feather.replace();
+        } else {
+            summaryContent.innerHTML = `
+                <div class="alert alert-warning">
+                    <i data-feather="alert-triangle" class="me-2"></i>
+                    Unable to generate enhanced summary. Please try again.
+                </div>
+            `;
+            feather.replace();
+        }
+    })
+    .catch(error => {
+        summaryContent.innerHTML = `
+            <div class="alert alert-danger">
+                <i data-feather="alert-circle" class="me-2"></i>
+                Error generating summary. Please try again later.
+            </div>
+        `;
+        feather.replace();
+        console.error('Summarization error:', error);
+    });
+}
+
+// Related search function
+function searchRelated(query) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ url_for("search") }}';
+    
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'query';
+    input.value = query;
+    
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}
