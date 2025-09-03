@@ -63,8 +63,8 @@ Provide a clear, professional summary in 2-3 paragraphs suitable for healthcare 
                 temperature=0.3
             )
             
-            content = response.choices[0].message.content
-            return content.strip() if content else "Summary unavailable"
+            content = response.choices[0].message.content or "Summary unavailable"
+            return content.strip() if isinstance(content, str) else "Summary unavailable"
             
         except Exception as e:
             logging.error(f"OpenAI summarization error: {str(e)}")
