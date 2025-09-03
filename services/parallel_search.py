@@ -32,23 +32,19 @@ class ParallelSearchService:
             if not self.api_key:
                 raise Exception("Parallel.ai API key not configured")
             
-            # Enhance query for medical context
-            medical_query = f"medical research evidence-based {query} clinical study peer-reviewed"
-            
-            # Prepare search queries for comprehensive medical search
+            # Simplified search queries for better results
             search_queries = [
-                f"{query} clinical evidence peer-reviewed",
-                f"{query} medical research study",
-                f"{query} treatment guidelines evidence",
-                f"{query} diagnosis clinical practice"
+                f"{query}",
+                f"{query} medical",
+                f"{query} clinical"
             ]
             
             payload = {
-                "objective": f"Find evidence-based medical information about: {query}",
-                "search_queries": search_queries[:2],  # Use top 2 queries to avoid rate limits
-                "processor": "base",  # Use base processor for faster response
+                "objective": f"Find medical information about: {query}",
+                "search_queries": search_queries[:2],  # Use top 2 queries
+                "processor": "base",
                 "max_results": max_results,
-                "max_chars_per_result": 2000  # Get more content for medical context
+                "max_chars_per_result": 1500
             }
             
             logging.info(f"Searching parallel.ai for medical query: {query}")
@@ -56,22 +52,27 @@ class ParallelSearchService:
             
             if response.status_code == 200:
                 data = response.json()
+                logging.debug(f"Parallel.ai response: {data}")
                 results = []
                 
                 # Process search results
                 search_results = data.get('results', [])
                 for result in search_results:
+                    # Extract content from excerpts array (new API format)
+                    excerpts = result.get('excerpts', [])
+                    content = ' '.join(excerpts) if excerpts else result.get('content', '')
+                    
                     processed_result = {
                         'title': result.get('title', 'Medical Literature'),
                         'url': result.get('url', ''),
-                        'content': result.get('content', ''),
+                        'content': content,
                         'source_type': self._determine_source_type(result.get('url', '')),
                         'publication_date': result.get('date', 'Unknown'),
                         'relevance_score': result.get('score', 0)
                     }
                     
                     # Only include results with substantial content
-                    if len(processed_result['content'].strip()) > 100:
+                    if len(processed_result['content'].strip()) > 50:  # Lower threshold for excerpts
                         results.append(processed_result)
                 
                 logging.info(f"Found {len(results)} medical literature results")
