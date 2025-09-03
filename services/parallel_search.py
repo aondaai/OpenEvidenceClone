@@ -48,7 +48,7 @@ class ParallelSearchService:
             }
             
             logging.info(f"Searching parallel.ai for medical query: {query}")
-            response = requests.post(self.base_url, headers=self.headers, json=payload, timeout=15)
+            response = requests.post(self.base_url, headers=self.headers, json=payload, timeout=10)
             
             if response.status_code == 200:
                 data = response.json()

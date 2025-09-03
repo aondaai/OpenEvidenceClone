@@ -33,12 +33,17 @@ def search():
         # Log the search query
         app.logger.info(f"Processing medical search query: {query}")
         
+        # Check if query is too long and suggest simplification
+        if len(query) > 200:
+            flash('Your search query is quite long. For better results, try using shorter, more specific medical terms.', 'warning')
+            return redirect(url_for('index'))
+        
         # Perform parallel.ai search for medical literature
         try:
             search_results = parallel_search.search_medical_literature(query)
         except Exception as search_error:
             app.logger.error(f"Search API error: {str(search_error)}")
-            flash('Search service is temporarily unavailable. Please try again in a moment.', 'error')
+            flash('Search service is temporarily unavailable. Please try again with a simpler query.', 'error')
             return redirect(url_for('index'))
         
         if not search_results:
