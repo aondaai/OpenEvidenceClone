@@ -48,7 +48,7 @@ class ParallelSearchService:
             }
             
             logging.info(f"Searching parallel.ai for medical query: {query}")
-            response = requests.post(self.base_url, headers=self.headers, json=payload, timeout=30)
+            response = requests.post(self.base_url, headers=self.headers, json=payload, timeout=15)
             
             if response.status_code == 200:
                 data = response.json()
@@ -87,13 +87,14 @@ class ParallelSearchService:
                 raise Exception(f"Search service error: {response.status_code}")
                 
         except requests.exceptions.Timeout:
-            raise Exception("Search request timed out. Please try again.")
+            logging.error("Parallel.ai API timeout")
+            raise Exception("Search request timed out. Please try again with a simpler query.")
         except requests.exceptions.RequestException as e:
             logging.error(f"Parallel.ai request error: {str(e)}")
-            raise Exception("Unable to connect to search service")
+            raise Exception("Unable to connect to search service. Please try again.")
         except Exception as e:
             logging.error(f"Search error: {str(e)}")
-            raise e
+            raise Exception(f"Search failed: {str(e)}")
     
     def _determine_source_type(self, url: str) -> str:
         """Determine the type of medical source based on URL"""

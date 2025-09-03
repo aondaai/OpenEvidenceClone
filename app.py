@@ -34,7 +34,12 @@ def search():
         app.logger.info(f"Processing medical search query: {query}")
         
         # Perform parallel.ai search for medical literature
-        search_results = parallel_search.search_medical_literature(query)
+        try:
+            search_results = parallel_search.search_medical_literature(query)
+        except Exception as search_error:
+            app.logger.error(f"Search API error: {str(search_error)}")
+            flash('Search service is temporarily unavailable. Please try again in a moment.', 'error')
+            return redirect(url_for('index'))
         
         if not search_results:
             flash('No medical literature found for your query. Please try different terms.', 'info')

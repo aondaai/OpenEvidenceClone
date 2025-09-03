@@ -191,15 +191,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle form submission with loading state
     const searchForm = document.querySelector('form[action="{{ url_for('search') }}"]');
-    const searchBtn = searchForm.querySelector('button[type="submit"]');
-    const searchBtnText = searchBtn.querySelector('.search-btn-text');
-    const searchBtnLoading = searchBtn.querySelector('.search-btn-loading');
-    
-    searchForm.addEventListener('submit', function() {
-        searchBtn.disabled = true;
-        searchBtnText.classList.add('d-none');
-        searchBtnLoading.classList.remove('d-none');
-    });
+    if (searchForm) {
+        const searchBtn = searchForm.querySelector('button[type="submit"]');
+        const searchBtnText = searchBtn ? searchBtn.querySelector('.search-btn-text') : null;
+        const searchBtnLoading = searchBtn ? searchBtn.querySelector('.search-btn-loading') : null;
+        
+        if (searchBtn && searchBtnText && searchBtnLoading) {
+            searchForm.addEventListener('submit', function() {
+                searchBtn.disabled = true;
+                searchBtnText.classList.add('d-none');
+                searchBtnLoading.classList.remove('d-none');
+                
+                // Set a timeout to re-enable the button after 30 seconds
+                setTimeout(function() {
+                    searchBtn.disabled = false;
+                    searchBtnText.classList.remove('d-none');
+                    searchBtnLoading.classList.add('d-none');
+                }, 30000);
+            });
+        }
+    }
 });
 </script>
 {% endblock %}
